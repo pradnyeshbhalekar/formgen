@@ -6,7 +6,8 @@ def generate_react_form(schema, output_path):
     state_hooks = ""
     inputs = ""
 
-    for name, props in schema.items():
+    for name in schema:
+        props = schema[name] if isinstance(schema[name], dict) else {}
         label = props.get("label", name.capitalize())
         input_type = props.get('type', "text")
 
@@ -58,4 +59,4 @@ def generate_react_form(schema, output_path):
     with open(output_path, "w") as f:
         f.write(jsx)
 
-    print(f"✅ React form generated successfully at {output_path}")
+    print(f" React form generated successfully at {output_path}")
