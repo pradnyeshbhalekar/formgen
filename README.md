@@ -4,16 +4,10 @@
 
 ## Installation
 
-You can install this package locally using:
+Install this package using:
 
 ```bash
-pip install .
-```
-
-Or, if uploading to PyPI:
-
-```bash
-pip install formgen
+pip install pyformgen
 ```
 
 ## How to Use
@@ -28,34 +22,47 @@ Create a JSON file that defines your form fields and their properties.
 
 ```json
 {
-  "username": {
-    "label": "Username",
+  "first_name": {
+    "label": "First Name",
     "type": "text",
+    "placeholder": "Enter your first name",
+    "required": true
+  },
+  "age": {
+    "label": "Age",
+    "type": "number",
+    "placeholder": "Enter your age",
     "required": true,
-    "placeholder": "Enter your username"
+    "min": 0
   },
-  "email": {
-    "label": "Email Address",
-    "type": "email",
-    "required": true
+  "gender": {
+    "label": "Gender",
+    "type": "select",
+    "required": true,
+    "options": [
+      { "value": "male", "label": "Male" },
+      { "value": "female", "label": "Female" },
+      { "value": "other", "label": "Other" }
+    ]
   },
-  "password": {
-    "label": "Password",
-    "type": "password",
-    "required": true
+  "subscribe": {
+    "label": "Subscribe to Newsletter",
+    "type": "checkbox",
+    "required": false
   }
 }
+
 ```
 
 ### 2. Generate your React form component
 
-Use the `generate_react_form` function from `formgen.react_generator` in your Python script.
+Use the `generate_react_form` function from `pyformgen` in your Python script.
 
 **Example Python Script:**
 
 ```python
 import json
-from formgen.react_generator import generate_react_form
+from formgen import generate_react_form
 
 # Load your JSON schema
 with open("sample_schema.json") as f:
@@ -82,56 +89,77 @@ After running, you'll find a `GeneratedForm.jsx` file (or whatever you named it)
 
 The generated JSX form will look like this (simplified):
 
-```jsx
-import { useState } from 'react';
+```jsximport { useState } from 'react';
 
-export default function Form() {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+
+export default function GeneratedForm() {
+  const [first_name, setFirst_name] = useState("");
+  const [age, setAge] = useState("");
+  const [gender, setGender] = useState("");
+  const [subscribe, setSubscribe] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log({ username, email, password });
+    const formData = {
+      first_name,
+      age,
+      gender,
+      subscribe,
+    };
+    console.log("Submitted data:", formData);
   };
 
   return (
     <form onSubmit={handleSubmit}>
+
       <div>
-        <label>Username</label>
+        <label>First Name</label>
         <input
-          name="username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-          placeholder="Enter your username"
+          name="first_name"
+          value={ first_name }
+          onChange={(e) => setFirst_name(e.target.value)}
           type="text"
+           placeholder="Enter your first name" required
         />
       </div>
       <div>
-        <label>Email Address</label>
+        <label>Age</label>
         <input
-          name="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          type="email"
+          name="age"
+          value={ age }
+          onChange={(e) => setAge(e.target.value)}
+          type="number"
+           placeholder="Enter your age" required min="0"
         />
       </div>
       <div>
-        <label>Password</label>
+        <label>Gender</label>
+        <select
+          name="gender"
+          value={ gender }
+          onChange={(e) => setGender(e.target.value)}
+           required
+        >
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+        </select>
+      </div>
+      <div>
+        <label>Subscribe to Newsletter</label>
         <input
-          name="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          type="password"
+          name="subscribe"
+          value={ subscribe }
+          onChange={(e) => setSubscribe(e.target.value)}
+          type="checkbox"
+          
         />
       </div>
       <button type="submit">Submit</button>
     </form>
   );
 }
+
 ```
 
 ## Field Attributes Supported
@@ -140,6 +168,17 @@ Each field in your JSON schema can have the following attributes:
 
 - `label`: The label text displayed beside the input field.
 - `type`: The HTML input type (e.g., `text`, `email`, `password`, `number`, `checkbox`, `radio`, `textarea`, `select`).
+- `min`: Sets the minimum numeric `value` or `date`.
+- `min`: Sets the maximum numeric `value` or `date`.
+- `pattern`: Defines a regex pattern the `input` must match.
+- `readOnly`: Prevents the user from `editing` the field.
+- `disabled`: Disables the field so it can't be `interacted` with.
+- `autoComplete`: Suggests previously entered `values` for the field.
+- `size`: 	Defines the visible width of the `input` in characters.
+- `multiple`: Allows selection of `multiple values` (usually for file or select inputs).
+- `autoFocus`: Automatically focuses the `field` on page load.
+- `defaultValue`: Sets a `default value` for the input field.
+
 - `required`: A boolean value (`true` or `false`) to mark the field as required.
 - `placeholder`: Placeholder text displayed inside the input field before user input.
 - `options`: (For `select` or `radio` types) An array of objects, each with `value` and `label` properties.
