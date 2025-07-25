@@ -1,0 +1,18 @@
+{
+  "name": {
+    "type": "text",
+    "label": "Full Name",
+    "placeholder": "Enter your name"
+  },
+  "email": {
+    "type": "email",
+    "label": "Email",
+    "required": true
+  },
+  "age": {
+    "type": "number",
+    "label": "Age",
+    "min": 0,
+    "max": 120
+  }
+}
