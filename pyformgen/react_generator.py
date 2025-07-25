@@ -9,11 +9,11 @@ def generate_react_form(schema, output_path):
     for name in schema:
         props = schema[name] if isinstance(schema[name], dict) else {}
         label = props.get("label", name.capitalize())
-        input_type = props.get('type', "text")
+        input_type = props.get("type", "text")
 
         dynamic_attrs = ""
         for key, value in props.items():
-            if key == "label":
+            if key in ["label", "options", "type"]:
                 continue
             if isinstance(value, bool):
                 if value:
@@ -24,34 +24,46 @@ def generate_react_form(schema, output_path):
         setter = to_camel_case_setter(name)
         state_hooks += f"  const [{name}, {setter}] = useState(\"\");\n"
 
-        inputs += f"""
+        if input_type == "select":
+            options = props.get("options", [])
+            options_jsx = "\n".join(
+                [f'            <option value="{opt}">{opt}</option>' for opt in options]
+            )
+            inputs += f"""
+      <div>
+        <label>{label}</label>
+        <select
+          name="{name}"
+          value={{ {name} }}
+          onChange={{(e) => {setter}(e.target.value)}}
+          {dynamic_attrs}
+        >
+{options_jsx}
+        </select>
+      </div>"""
+        else:
+            inputs += f"""
       <div>
         <label>{label}</label>
         <input
           name="{name}"
           value={{ {name} }}
           onChange={{(e) => {setter}(e.target.value)}}
+          type="{input_type}"
           {dynamic_attrs}
         />
       </div>"""
 
-    state_names = ', '.join(schema.keys())
-
-    jsx = f"""{imports}export default function Form() {{
+    jsx = f"""{imports}
+export default function GeneratedForm() {{
 {state_hooks}
-
-  const handleSubmit = (e) => {{
-    e.preventDefault();
-    console.log({{{state_names}}});
-  }};
-                
   return (
-    <form onSubmit={{handleSubmit}}>
-      {inputs}
-      <button type="submit">Submit</button>
+    <form>
+{inputs}
     </form>
   );
-}}"""
+}}
+"""
 
     if not output_path.endswith(".jsx"):
         output_path += ".jsx"
@@ -59,4 +71,4 @@ def generate_react_form(schema, output_path):
     with open(output_path, "w") as f:
         f.write(jsx)
 
-    print(f" React form generated successfully at {output_path}")
+    print(f"React form generated successfully at {output_path}")
