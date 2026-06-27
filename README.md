@@ -2,6 +2,9 @@
 
 `FormGen` is a Python tool that helps you quickly generate React form components from JSON schemas. It’s useful for frontend-backend integration workflows, rapid prototyping, or generating boilerplate form code in large projects.
 
+Try it Out here:
+https://formgen-app.onrender.com
+
 ## Installation
 
 Install this package using:
